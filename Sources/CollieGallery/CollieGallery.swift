@@ -31,15 +31,20 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
     fileprivate var theme = CollieGalleryTheme.dark
     fileprivate var pictures: [CollieGalleryPicture] = []
     fileprivate var pictureViews: [CollieGalleryView] = []
+    fileprivate var shouldHideStatusBar = true
     fileprivate var isShowingLandscapeView: Bool {
-        let orientation = UIApplication.shared.statusBarOrientation
-        
-        switch (orientation) {
-        case UIInterfaceOrientation.landscapeLeft, UIInterfaceOrientation.landscapeRight:
-            return true
-        default:
-            return false
+        if let interfaceOrientation = view.window?.windowScene?.interfaceOrientation {
+            return interfaceOrientation.isLandscape
         }
+
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive })
+        {
+            return windowScene.interfaceOrientation.isLandscape
+        }
+
+        return view.bounds.width > view.bounds.height
     }
     fileprivate var isShowingActionControls: Bool {
         get {
@@ -132,10 +137,9 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if !UIApplication.shared.isStatusBarHidden {
-            UIApplication.shared.setStatusBarHidden(true, with: UIStatusBarAnimation.slide)
-        }
-        
+        shouldHideStatusBar = true
+        setNeedsStatusBarAppearanceUpdate()
+
         pagingScrollView.delegate = self
         
         if self.pagingScrollView.contentOffset.x == 0.0 {
@@ -159,10 +163,9 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if UIApplication.shared.isStatusBarHidden {
-            UIApplication.shared.setStatusBarHidden(false, with: UIStatusBarAnimation.none)
-        }
-        
+        shouldHideStatusBar = false
+        setNeedsStatusBarAppearanceUpdate()
+
         pagingScrollView.delegate = nil
     }
     
@@ -172,7 +175,11 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
     }
     
     override open var prefersStatusBarHidden : Bool {
-        return true
+        return shouldHideStatusBar
+    }
+
+    override open var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .slide
     }
     
     open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -256,11 +263,11 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
         let closeButton = UIButton(frame: closeButtonFrame)
         if let customImageName = options.customCloseImageName,
             let image = UIImage(named: customImageName) {
-            closeButton.setImage(image, for: UIControl.State())
+            closeButton.setImage(image, for: .normal)
         } else {
-            closeButton.setTitle("+", for: UIControl.State())
+            closeButton.setTitle("+", for: .normal)
             closeButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Medium", size: 30)
-            closeButton.setTitleColor(theme.closeButtonColor, for: UIControl.State())
+            closeButton.setTitleColor(theme.closeButtonColor, for: .normal)
             closeButton.transform = CGAffineTransform(rotationAngle: CGFloat(CGFloat.pi / 4))
         }
         closeButton.addTarget(self, action: #selector(closeButtonTouched), for: .touchUpInside)
@@ -290,11 +297,11 @@ open class CollieGallery: UIViewController, UIScrollViewDelegate, CollieGalleryV
         let actionButton = UIButton(frame: closeButtonFrame)
         if let customImageName = options.customOptionsImageName,
             let image = UIImage(named: customImageName) {
-            closeButton.setImage(image, for: UIControl.State())
+            closeButton.setImage(image, for: .normal)
         } else {
-            actionButton.setTitle("•••", for: UIControl.State())
+            actionButton.setTitle("•••", for: .normal)
             actionButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Thin", size: 15)
-            actionButton.setTitleColor(theme.closeButtonColor, for: UIControl.State())
+            actionButton.setTitleColor(theme.closeButtonColor, for: .normal)
         }
         
         actionButton.addTarget(self, action: #selector(actionButtonTouched), for: .touchUpInside)
