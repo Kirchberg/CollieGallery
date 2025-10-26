@@ -1,9 +1,5 @@
 # CollieGallery
 
-[![Version](https://img.shields.io/cocoapods/v/CollieGallery.svg?style=flat)](http://cocoapods.org/pods/CollieGallery)
-[![License](https://img.shields.io/cocoapods/l/CollieGallery.svg?style=flat)](http://cocoapods.org/pods/CollieGallery)
-[![Platform](https://img.shields.io/cocoapods/p/CollieGallery.svg?style=flat)](http://cocoapods.org/pods/CollieGallery)
-
 CollieGallery is a fullscreen image gallery with support for local and remote images and it has a lot of built-in features like zooming, panning, interactive transitions and more! The gallery is highly customizable and it’s really easy to make it look and work the way you want.
 
 ![Interactive Transition](Docs/Images/InteractiveTransition.gif) 
@@ -12,11 +8,24 @@ CollieGallery is a fullscreen image gallery with support for local and remote im
 
 ## Installation
 
-CollieGallery is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+### Swift Package Manager
 
-```ruby
-pod "CollieGallery"
+CollieGallery supports Swift Package Manager out of the box. In Xcode, choose **File → Add Packages...**, then enter the URL of this repository. Select the `CollieGallery` library product to add it to your target.
+
+If you prefer to add the dependency manually, add the package entry to your `Package.swift` file:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/gmunhoz/CollieGallery.git", from: "1.0.0"),
+],
+targets: [
+    .target(
+        name: "YourTarget",
+        dependencies: [
+            .product(name: "CollieGallery", package: "CollieGallery")
+        ]
+    )
+]
 ```
 
 ## Usage
@@ -127,7 +136,7 @@ To change the way CollieGallery looks you should use the CollieGalleryAppearance
 1. Use the sharedAppearance object. All the changes made in the sharedAppearance will affect all new instances of the gallery. For example, if you set the backgroundColor property to blue, all new instances will have a blue background:
 
 	```swift
-	CollieGalleryAppearance.sharedAppearance.backgroundColor = UIColor.blueColor()
+        CollieGalleryAppearance.sharedAppearance.backgroundColor = UIColor.blue
 	```
 2. Use the CollieGalleryTheme class. You can use one of the pre-defined themes or you create your theme and pass it as the third parameter in the CollieGallery initializer:
 
@@ -140,7 +149,7 @@ To change the way CollieGallery looks you should use the CollieGalleryAppearance
 	
 		```swift
 		let appearance = CollieGalleryAppearance()
-		appearance.backgroundColor = UIColor.blueColor()
+                appearance.backgroundColor = UIColor.blue
 		
 		let theme = CollieGalleryTheme(appearance: appearance)
 		
